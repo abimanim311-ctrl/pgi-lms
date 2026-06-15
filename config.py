@@ -1,6 +1,8 @@
+import os
+
 class Config:
-    MYSQL_HOST = 'plant-green-inertia-abimani27112003-3e8c.g.aivencloud.com'
-    MYSQL_PORT = 23879
-    MYSQL_USER = 'avnadmin'
-    MYSQL_PASSWORD = 'AVNS_twqHLYh1gu_eg85QPV-'
-    MYSQL_DB = 'defaultdb'
+    MYSQL_HOST = os.environ.get('MYSQL_HOST')
+    MYSQL_PORT = int(os.environ.get('MYSQL_PORT', 23879))
+    MYSQL_USER = os.environ.get('MYSQL_USER')
+    MYSQL_PASSWORD = os.environ.get('MYSQL_PASSWORD')
+    MYSQL_DB = os.environ.get('MYSQL_DB')
