@@ -17,9 +17,9 @@ app = Flask(__name__)
 CORS(app)
 
 app.config['SECRET_KEY']                 = 'pgi-lms-secret-2024'
-app.config['SQLALCHEMY_DATABASE_URI']    = (
-    'mysql+pymysql://avnadmin:AVNS_twqHLYh1gu_eg85QPV-'
-    '@plant-green-inertia-abimani27112003-3e8c.g.aivencloud.com:23879/defaultdb'
+app.config['SQLALCHEMY_DATABASE_URI'] = (
+    f"mysql+pymysql://{os.environ.get('MYSQL_USER')}:{os.environ.get('MYSQL_PASSWORD')}"
+    f"@{os.environ.get('MYSQL_HOST')}:{os.environ.get('MYSQL_PORT', 23879)}/{os.environ.get('MYSQL_DB')}"
 )
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ENGINE_OPTIONS']  = {
@@ -250,8 +250,11 @@ def api_register():
         )
         session.update({'user_id': uid, 'username': username, 'full_name': full_name})
         return jsonify({'success': True, 'redirect': '/dashboard'})
-    except Exception:
-        return jsonify({'error': 'Username or email already exists'}), 400
+    except Exception as e:
+        err = str(e)
+        if 'Duplicate entry' in err or '1062' in err:
+            return jsonify({'error': 'Username or email already exists'}), 400
+        return jsonify({'error': f'Registration failed: {err}'}), 500
 
 
 @app.route('/api/auth/logout')
