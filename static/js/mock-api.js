@@ -1945,18 +1945,12 @@
 
   // Helper to init storage if empty
   function initLocalStorage() {
-    // Clean up course 16 (Data Analytics) from localStorage if it exists
-    if (localStorage.getItem('courses')) {
-      try {
-        let storedCourses = JSON.parse(localStorage.getItem('courses'));
-        if (storedCourses.some(c => c.id === 16)) {
-          storedCourses = storedCourses.filter(c => c.id !== 16);
-          localStorage.setItem('courses', JSON.stringify(storedCourses));
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    }
+    // Always sync static catalog tables with current JS definitions
+    localStorage.setItem('courses', JSON.stringify(initialCourses));
+    localStorage.setItem('lessons', JSON.stringify(initialLessons));
+    localStorage.setItem('assignments', JSON.stringify(initialAssignments));
+    localStorage.setItem('quiz_questions', JSON.stringify(initialQuizQuestions));
+    localStorage.setItem('achievements', JSON.stringify(initialAchievements));
 
     if (!localStorage.getItem('users')) {
       const demoUser = {
@@ -2002,11 +1996,6 @@
       };
 
       localStorage.setItem('users', JSON.stringify([demoUser, adminUser]));
-      localStorage.setItem('courses', JSON.stringify(initialCourses));
-      localStorage.setItem('lessons', JSON.stringify(initialLessons));
-      localStorage.setItem('assignments', JSON.stringify(initialAssignments));
-      localStorage.setItem('quiz_questions', JSON.stringify(initialQuizQuestions));
-      localStorage.setItem('achievements', JSON.stringify(initialAchievements));
       
       // User enrollments (seeded for user 1)
       const userCourses = [
