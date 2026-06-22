@@ -18,19 +18,12 @@ function normaliseVideoUrl(raw) {
   let url = raw.trim().replace(/\\/g, '/');
   if (url.startsWith('http://') || url.startsWith('https://')) return url;
 
-  // Strip Windows-style absolute paths (e.g. C:/Users/.../static/uploads/videos/DM1.mp4)
-  // by extracting everything from 'static/uploads/' onward
-  const staticIdx = url.indexOf('static/uploads/');
-  if (staticIdx !== -1) {
-    url = url.slice(staticIdx + 'static/uploads/'.length);
-  } else {
-    url = url.replace(/^\/+/, '');
-  }
+  // Extract the filename from any absolute or folder paths
+  const parts = url.split('/');
+  const filename = parts[parts.length - 1];
 
-  // Also handle paths that already start with videos/ or video/
-  if (url.startsWith('video/')) return '/' + url;
-  if (!url.startsWith('videos/')) url = 'videos/' + url;
-  return '/video/' + url;
+  // Return the direct relative path to the local video file
+  return 'static/uploads/videos/' + filename;
 }
 
 function normaliseYouTubeUrl(raw) {
