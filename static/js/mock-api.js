@@ -366,7 +366,7 @@
       "video_url": "DM2.mp4",
       "duration_minutes": 30,
       "xp_reward": 20,
-      "youtube_url": null,
+      "youtube_url": "https://www.youtube.com/live/Zg2SnLqWP4Q?si=AZ1mfYhU93yWiGp1",
       "lesson_order": 2
     },
     {

@@ -30,16 +30,42 @@ function normaliseYouTubeUrl(raw) {
   if (!raw || !raw.trim()) return '';
   let url = raw.trim();
   if (url.includes('youtube.com/embed/')) return url;
+
+  // Handle YouTube Shorts (e.g., youtube.com/shorts/VIDEO_ID)
+  if (url.includes('youtube.com/shorts/')) {
+    const parts = url.split('youtube.com/shorts/');
+    if (parts[1]) {
+      const videoId = parts[1].split('?')[0].split('/')[0];
+      return `https://www.youtube.com/embed/${videoId}`;
+    }
+  }
+
+  // Handle YouTube Live (e.g., youtube.com/live/VIDEO_ID)
+  if (url.includes('youtube.com/live/')) {
+    const parts = url.split('youtube.com/live/');
+    if (parts[1]) {
+      const videoId = parts[1].split('?')[0].split('/')[0];
+      return `https://www.youtube.com/embed/${videoId}`;
+    }
+  }
+
+  // Handle standard watch?v= (e.g., youtube.com/watch?v=VIDEO_ID)
   if (url.includes('watch?v=')) {
     try {
       const v = new URL(url).searchParams.get('v');
       if (v) return `https://www.youtube.com/embed/${v}`;
     } catch {}
   }
+
+  // Handle shortened youtu.be/ (e.g., youtu.be/VIDEO_ID)
   if (url.includes('youtu.be/')) {
-    const v = url.split('youtu.be/')[1].split('?')[0];
-    return `https://www.youtube.com/embed/${v}`;
+    const parts = url.split('youtu.be/');
+    if (parts[1]) {
+      const videoId = parts[1].split('?')[0].split('/')[0];
+      return `https://www.youtube.com/embed/${videoId}`;
+    }
   }
+
   return url;
 }
 
