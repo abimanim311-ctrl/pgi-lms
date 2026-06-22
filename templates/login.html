@@ -219,7 +219,7 @@ function showPanel(id) {
 // ── Toggle password visibility ────────────────────────────
 function togglePw(inputId, btn) {
   const inp = document.getElementById(inputId);
-  if (inp.type === 'password') { inp.type = 'text';     btn.textContent = '🙈'; }
+  if (inp.type === 'password') { inp.type = 'text';     btn.textContent = '-'; }
   else                         { inp.type = 'password'; btn.textContent = '👁';  }
 }
 
