@@ -221,20 +221,6 @@
       "xp_reward": 100,
       "created_at": "2026-06-15 07:48:55",
       "google_form_url": null
-    },
-    {
-      "id": 16,
-      "title": "Data Analytics",
-      "description": "Analyze, interpret, and visualize data to drive smarter business decisions and strategies",
-      "instructor": null,
-      "thumbnail": null,
-      "total_modules": 0,
-      "total_hours": 0,
-      "difficulty": "Beginner",
-      "category": null,
-      "xp_reward": 100,
-      "created_at": "2026-06-15 08:02:54",
-      "google_form_url": null
     }
   ];
 
@@ -1959,6 +1945,19 @@
 
   // Helper to init storage if empty
   function initLocalStorage() {
+    // Clean up course 16 (Data Analytics) from localStorage if it exists
+    if (localStorage.getItem('courses')) {
+      try {
+        let storedCourses = JSON.parse(localStorage.getItem('courses'));
+        if (storedCourses.some(c => c.id === 16)) {
+          storedCourses = storedCourses.filter(c => c.id !== 16);
+          localStorage.setItem('courses', JSON.stringify(storedCourses));
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
     if (!localStorage.getItem('users')) {
       const demoUser = {
         id: 1,
