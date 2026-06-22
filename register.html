@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Register — Plant Green Inertia LMS</title>
-  <script src="/static/js/mock-api.js"></script>
+  <script src="static/js/mock-api.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet"
-      href="{{ url_for('static', filename='main.css') }}">
+      href="static/main.css">
   <style>
     body { background: var(--green-900); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
     .auth-wrapper { display: flex; width: 100%; max-width: 480px; border-radius: var(--radius-xl); overflow: hidden; box-shadow: var(--shadow-lg); margin: 20px; }
@@ -23,7 +23,7 @@
 </head>
 <body>
 <div style="position:fixed;top:20px;left:20px">
-  <a href="/login" class="back-link" style="color:rgba(255,255,255,0.6)">← Back to login</a>
+  <a href="login.html" class="back-link" style="color:rgba(255,255,255,0.6)">← Back to login</a>
 </div>
 <div class="app-layout" style="display:flex;align-items:center;justify-content:center;min-height:100vh">
 <div class="auth-wrapper">
@@ -55,7 +55,7 @@
     </button>
 
     <div class="auth-footer">
-      Already have an account? <a href="/login">Sign in</a>
+      Already have an account? <a href="login.html">Sign in</a>
     </div>
   </div>
 </div>
@@ -80,7 +80,7 @@
       body: JSON.stringify({ full_name, username, email, password })
     });
     const data = await res.json();
-    if (data.success) { window.location.href = data.redirect; }
+    if (data.success) { window.location.href = data.redirect + ".html"; }
     else { showErr(data.error || 'Registration failed'); btn.textContent = 'Create Account →'; btn.disabled = false; }
   }
 

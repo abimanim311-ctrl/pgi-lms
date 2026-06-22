@@ -4,9 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login — Plant Green Inertia LMS</title>
-  <script src="/static/js/mock-api.js"></script>
+  <script src="static/js/mock-api.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/main.css">
+  <link rel="stylesheet" href="static/main.css">
   <style>
     body{background:var(--green-900);min-height:100vh;display:flex;align-items:center;justify-content:center;}
 
@@ -130,7 +130,7 @@
       </button>
 
       <div class="auth-footer">
-        Don't have an account? <a href="/register">Create one free</a>
+        Don't have an account? <a href="register.html">Create one free</a>
       </div>
     </div><!-- /panel-login -->
 
@@ -279,7 +279,7 @@ async function doLogin() {
   const data = await res.json();
 
   if (data.success) {
-    window.location.href = data.redirect;
+    window.location.href = data.redirect + ".html";
   } else {
     showAlert('login-err', data.error || 'Login failed. Please try again.');
     btn.textContent = 'Sign In →';

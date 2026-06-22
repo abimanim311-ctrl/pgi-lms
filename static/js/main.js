@@ -6,7 +6,7 @@
 const api = {
   async get(url) {
     const res = await fetch(url);
-    if (res.status === 401) { window.location.href = '/login'; return null; }
+    if (res.status === 401) { window.location.href = 'login.html'; return null; }
     return res.json();
   },
   async post(url, data) {
@@ -327,8 +327,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Logout button
   const logoutBtn = document.getElementById('logout-btn');
   if (logoutBtn) {
-    logoutBtn.addEventListener('click', () => {
-      window.location.href = '/api/auth/logout';
+    logoutBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      localStorage.removeItem('sessionUser');
+      window.location.href = 'login.html';
     });
   }
 });

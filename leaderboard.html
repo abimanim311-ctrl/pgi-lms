@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leaderboard — Plant Green Inertia</title>
+  <script src="static/js/mock-api.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="static/main.css">
+  
+<style>
+.lb-top{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px}
+.lb-podium{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:22px 16px;text-align:center;position:relative;overflow:hidden;transition:all 0.2s}
+.lb-podium:hover{box-shadow:var(--shadow-md);transform:translateY(-3px)}
+.lb-podium.rank-1{border-color:#fbbf24;background:linear-gradient(135deg,#fffbeb,#fef3c7)}
+.lb-podium.rank-2{border-color:#9ca3af;background:linear-gradient(135deg,#f9fafb,#f3f4f6)}
+.lb-podium.rank-3{border-color:#d97706;background:linear-gradient(135deg,#fffbeb,#fef9c3)}
+.podium-crown{font-size:28px;margin-bottom:6px}
+.podium-avatar{width:60px;height:60px;border-radius:50%;background:var(--green-500);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;margin:0 auto 10px;border:3px solid}
+.rank-1 .podium-avatar{border-color:#f59e0b}
+.rank-2 .podium-avatar{border-color:#9ca3af}
+.rank-3 .podium-avatar{border-color:#d97706}
+.podium-name{font-weight:700;font-size:14px;color:var(--text-dark)}
+.podium-score{font-family:var(--font-display);font-size:20px;font-weight:800;color:var(--green-600);margin-top:4px}
+.podium-score-label{font-size:10px;color:var(--text-muted)}
+.podium-badge{position:absolute;top:10px;right:10px;font-size:20px}
+.lb-table-wrap{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-sm)}
+.lb-table{width:100%;border-collapse:collapse}
+.lb-table th{padding:12px 16px;text-align:left;font-size:11px;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--text-muted);background:var(--bg);border-bottom:2px solid var(--border)}
+.lb-table td{padding:13px 16px;font-size:13px;border-bottom:1px solid var(--border)}
+.lb-table tr:last-child td{border-bottom:none}
+.lb-table tr.me{background:var(--green-50)}
+.lb-table tr:hover{background:var(--bg)}
+.rank-num{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+.r1{background:#fef08a;color:#713f12}
+.r2{background:#e5e7eb;color:#374151}
+.r3{background:#fed7aa;color:#7c2d12}
+.rn{background:var(--bg);color:var(--text-muted);border:1px solid var(--border);font-size:11px}
+.lb-avatar{width:34px;height:34px;border-radius:50%;background:var(--green-500);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff}
+.xp-pill{background:var(--green-100);color:var(--green-700);font-weight:700;font-size:12px;padding:3px 10px;border-radius:99px}
+.streak-pill{background:#fff7ed;color:#c2410c;font-size:12px;font-weight:600;padding:3px 10px;border-radius:99px}
+.level-pill{background:#e0e7ff;color:#3730a3;font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px}
+.you-tag{background:var(--green-500);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;margin-left:6px}
+.lb-period-tabs{display:flex;gap:8px;margin-bottom:16px}
+@media(max-width:700px){.lb-top{grid-template-columns:1fr}.lb-table th:nth-child(4),.lb-table td:nth-child(4),.lb-table th:nth-child(5),.lb-table td:nth-child(5){display:none}}
+</style>
+
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+<!-- ── Sidebar ─────────────────────────────────────────── -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-icon">
+      <img src="static/pgilogo.png" alt="PGI Logo">
+    </div>
+    <div class="sidebar-logo-text">
+      <div class="brand">PLANT GREEN<br>INERTIA</div>
+      <div class="sub">Learning Management</div>
+    </div>
+  </div>
+
+  <a href="edit_profile.html" class="edit-profile-btn" title="Edit Profile">
+  <div class="sidebar-user">
+    <div class="sidebar-avatar"></div>
+    <div class="sidebar-user-info">
+      <div class="name sidebar-username"></div>
+    </div>
+    <span style="margin-left:auto;color:rgba(255,255,255,0.3);font-size:14px">›</span>
+  </div>
+  </a>
+
+  <div class="sidebar-xp">
+    <div class="xp-label">
+      <span>XP Progress</span>
+      <span class="xp-label-text">0 / 1000</span>
+    </div>
+    <div class="xp-track"><div class="xp-fill" style="width:0%"></div></div>
+  </div>
+
+  <div class="sidebar-search">
+    <span class="search-icon">🔍</span>
+    <input type="text" name="prevent_autofill" style="display:none;" aria-hidden="true"><input type="email" name="prevent_email" style="display:none;" aria-hidden="true"><input type="text" placeholder="Search courses, lessons…" id="sidebar-search" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly')">
+  </div>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">Overview</div>
+      <a href="dashboard.html" class="nav-item">
+        <span class="nav-icon">🏠</span> Dashboard
+      </a>
+      <a href="schedule.html" class="nav-item" id="nav-schedule">
+        <span class="nav-icon">📅</span> Schedule
+      </a>
+      <a href="notifications.html" class="nav-item" onclick="openNotifPanel(event)" id="nav-notifications">
+        <span class="nav-icon">🔔</span> Notifications
+        <span class="nav-badge" id="notif-badge" style="display:none">4</span>
+      </a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Learning</div>
+      <a href="my_courses.html" class="nav-item" id="nav-courses">
+        <span class="nav-icon">📚</span> My Courses
+        <span class="nav-badge green">3</span>
+      </a>
+      <a href="assignments.html" class="nav-item" id="nav-assignments">
+        <span class="nav-icon">📝</span> Assignments
+        <span class="nav-badge" id="assign-badge" style="display:none">2</span>
+      </a>
+      <a href="quiz.html" class="nav-item" id="nav-quiz">
+        <span class="nav-icon">🧠</span> Quiz & Tests
+      </a>
+      <a href="leaderboard.html" class="nav-item">
+        <span class="nav-icon">🏆</span> Leaderboard
+      </a>
+      <a href="certifications.html" class="nav-item">
+        <span class="nav-icon">🎓</span> Certifications
+      </a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Account</div>
+      <a href="profile.html" class="nav-item">
+        <span class="nav-icon">👤</span> Profile
+      </a>
+      <a href="settings.html" class="nav-item">
+        <span class="nav-icon">⚙️</span> Settings
+      </a>
+    </div>
+  </nav>
+
+  <div class="sidebar-bottom">
+    <div class="storage-info">
+  <div class="storage-label">☁️ Cloud Storage</div>
+  <div class="storage-bar">
+    <div class="storage-fill" id="storage-fill" style="width:0%"></div>
+  </div>
+  <div class="storage-text" id="storage-text">Loading…</div>
+</div>
+    <a class="nav-item" href="#" id="logout-btn">
+      <span class="nav-icon">🚪</span> Sign Out
+    </a>
+  </div>
+</aside>
+
+<!-- ── Main ────────────────────────────────────────────── -->
+<div class="main-content">
+  <!-- Topbar -->
+  <header class="topbar">
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="topbar-title">
+      <h1>Leaderboard</h1>
+      <p>See how you rank against fellow learners</p>
+    </div>
+    <div class="topbar-actions">
+      <div class="streak-badge">
+        🔥 <span class="streak-count">0</span> day streak
+      </div>
+      <div style="position:relative">
+        <button class="icon-btn" id="notif-btn" title="Notifications">
+          🔔
+          <span class="dot notif-dot" style="display:none"></span>
+        </button>
+        <!-- Notification Dropdown -->
+        <div class="notif-dropdown" id="notif-dropdown">
+          <div class="notif-header">
+            Notifications
+            <span style="font-size:12px;color:var(--text-muted);font-weight:400;cursor:pointer" onclick="markAllRead()">Mark all read</span>
+          </div>
+          <div class="notif-body">
+            <div class="empty-state" style="padding:20px"><div class="empty-icon">🔔</div><p>Loading…</p></div>
+          </div>
+        </div>
+      </div>
+      <button class="icon-btn" title="Search" onclick="window.location.href='my_courses.html'">🔍</button>
+      <button class="icon-btn" title="Profile" onclick="window.location.href='profile.html'">🌿</button>
+    </div>
+  </header>
+
+  <!-- Page Body -->
+  <div class="page-content">
+    
+<div class="filter-tabs tabs-leaderboard">
+  <button class="tab" onclick="filterLeaderboard('weekly', this)">This Week</button>
+  <button class="tab" onclick="filterLeaderboard('monthly', this)">This Month</button>
+  <button class="tab active" onclick="filterLeaderboard('all', this)">All Time</button>
+</div>
+<!-- Top 3 Podium -->
+<div class="lb-top" id="lb-podium">
+  <div class="skeleton" style="height:180px;border-radius:var(--radius-lg)"></div>
+  <div class="skeleton" style="height:180px;border-radius:var(--radius-lg)"></div>
+  <div class="skeleton" style="height:180px;border-radius:var(--radius-lg)"></div>
+</div>
+
+<!-- Full Table -->
+<div class="lb-table-wrap">
+  <table class="lb-table" id="lb-table">
+    <thead>
+      <tr>
+        <th>Rank</th><th>Learner</th><th>Level</th><th>XP Score</th><th>Streak</th><th>Lessons</th>
+      </tr>
+    </thead>
+    <tbody id="lb-body">
+      <tr><td colspan="6" style="text-align:center;padding:30px;color:var(--text-muted)">Loading…</td></tr>
+    </tbody>
+  </table>
+</div>
+
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toast-container"></div>
+
+<script src="static/js/main.js"></script>
+
+<script>
+function initials(name){return (name||'?').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();}
+
+async function loadLeaderboard(period){
+  const data = await api.get(`/api/leaderboard?period=${period}`) || [];
+  renderPodium(data.slice(0,3));
+  renderTable(data);
+}
+
+function renderPodium(top){
+  const medals=['🥇','🥈','🥉'];
+  const rankClass=['rank-1','rank-2','rank-3'];
+  // reorder: 2nd, 1st, 3rd visually
+  const order=[1,0,2];
+  const podEl=document.getElementById('lb-podium');
+  podEl.innerHTML=order.map(i=>{
+    const u=top[i];
+    if(!u) return '<div class="lb-podium" style="opacity:0.3"><div class="podium-crown">—</div><p style="color:var(--text-muted);font-size:12px">No data</p></div>';
+    return `<div class="lb-podium ${rankClass[i]}">
+      <div class="podium-badge">${medals[i]}</div>
+      <div class="podium-crown">${medals[i]}</div>
+      <div class="podium-avatar">${initials(u.full_name)}</div>
+      <div class="podium-name">${u.full_name}${u.is_current?'<span class="you-tag">YOU</span>':''}</div>
+      <div class="podium-score">${u.score.toLocaleString()}</div>
+      <div class="podium-score-label">XP · Lv${u.level} · 🔥${u.streak_days}d</div>
+    </div>`;
+  }).join('');
+}
+
+function renderTable(data){
+  const body=document.getElementById('lb-body');
+  if(!data.length){body.innerHTML='<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--text-muted)">No data</td></tr>';return;}
+  const rankClass=(r)=>r===1?'r1':r===2?'r2':r===3?'r3':'rn';
+  body.innerHTML=data.map(u=>`
+    <tr class="${u.is_current?'me':''}">
+      <td><div class="rank-num ${rankClass(u.rank)}">${u.rank}</div></td>
+      <td><div style="display:flex;align-items:center;gap:10px">
+        <div class="lb-avatar">${initials(u.full_name)}</div>
+        <div>
+          <div style="font-weight:600">${u.full_name}${u.is_current?'<span class="you-tag">YOU</span>':''}</div>
+          <div style="font-size:11px;color:var(--text-muted)">@${u.username}</div>
+        </div>
+      </div></td>
+      <td><span class="level-pill">Lv ${u.level}</span></td>
+      <td><span class="xp-pill">⚡ ${u.score.toLocaleString()}</span></td>
+      <td><span class="streak-pill">🔥 ${u.streak_days}d</span></td>
+      <td style="font-weight:600">${u.lessons_done}</td>
+    </tr>`).join('');
+}
+
+document.addEventListener('DOMContentLoaded',()=>loadLeaderboard('all'));
+</script>
+
+</body>
+</html>

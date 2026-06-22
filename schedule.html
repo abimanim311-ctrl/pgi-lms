@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Schedule — Plant Green Inertia</title>
+  <script src="static/js/mock-api.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="static/main.css">
+  
+<style>
+.schedule-layout { display: grid; grid-template-columns: 1fr 320px; gap: 24px; }
+.calendar-panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px; }
+.cal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.cal-title { font-family: var(--font-display); font-size: 18px; font-weight: 700; }
+.cal-nav { display: flex; gap: 8px; }
+.cal-nav button { width: 32px; height: 32px; border-radius: var(--radius-sm); background: var(--bg); border: 1px solid var(--border); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-mid); }
+.cal-nav button:hover { background: var(--green-50); }
+.cal-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 6px; }
+.cal-weekday { text-align: center; font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; padding: 4px 0; }
+.cal-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.cal-day {
+  aspect-ratio: 1; border-radius: var(--radius-sm);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  font-size: 13px; cursor: pointer; transition: all 0.15s; position: relative;
+  border: 1.5px solid transparent;
+}
+.cal-day:hover { background: var(--green-50); }
+.cal-day.today { background: var(--green-700); color: #fff; font-weight: 700; }
+.cal-day.selected { border-color: var(--green-500); background: var(--green-50); }
+.cal-day.has-events::after { content: ''; position: absolute; bottom: 3px; width: 5px; height: 5px; border-radius: 50%; background: var(--green-400); }
+.cal-day.today.has-events::after { background: rgba(255,255,255,0.7); }
+.cal-day.other-month { color: var(--text-muted); opacity: 0.4; }
+.events-panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; }
+.events-date-title { font-family: var(--font-display); font-size: 16px; font-weight: 700; margin-bottom: 14px; }
+.event-item { display: flex; gap: 12px; align-items: flex-start; padding: 12px; border-radius: var(--radius-md); border: 1px solid var(--border); margin-bottom: 10px; transition: all 0.2s; cursor: pointer; }
+.event-item:hover { border-color: var(--green-300); background: var(--green-50); }
+.event-time { font-size: 11px; font-weight: 700; color: var(--green-600); min-width: 50px; margin-top: 2px; }
+.event-details { flex: 1; }
+.event-title { font-size: 13px; font-weight: 600; color: var(--text-dark); }
+.event-course { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.event-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+.type-lesson { background: var(--green-500); }
+.type-live_session { background: var(--urgent); }
+.type-assignment_due { background: var(--warning); }
+.type-quiz { background: #a855f7; }
+.type-study { background: var(--info); }
+.add-event-btn { width: 100%; margin-top: 14px; justify-content: center; }
+@media (max-width: 900px) { .schedule-layout { grid-template-columns: 1fr; } }
+</style>
+
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+<!-- ── Sidebar ─────────────────────────────────────────── -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="sidebar-logo-icon">
+      <img src="static/pgilogo.png" alt="PGI Logo">
+    </div>
+    <div class="sidebar-logo-text">
+      <div class="brand">PLANT GREEN<br>INERTIA</div>
+      <div class="sub">Learning Management</div>
+    </div>
+  </div>
+
+  <a href="edit_profile.html" class="edit-profile-btn" title="Edit Profile">
+  <div class="sidebar-user">
+    <div class="sidebar-avatar"></div>
+    <div class="sidebar-user-info">
+      <div class="name sidebar-username"></div>
+    </div>
+    <span style="margin-left:auto;color:rgba(255,255,255,0.3);font-size:14px">›</span>
+  </div>
+  </a>
+
+  <div class="sidebar-xp">
+    <div class="xp-label">
+      <span>XP Progress</span>
+      <span class="xp-label-text">0 / 1000</span>
+    </div>
+    <div class="xp-track"><div class="xp-fill" style="width:0%"></div></div>
+  </div>
+
+  <div class="sidebar-search">
+    <span class="search-icon">🔍</span>
+    <input type="text" name="prevent_autofill" style="display:none;" aria-hidden="true"><input type="email" name="prevent_email" style="display:none;" aria-hidden="true"><input type="text" placeholder="Search courses, lessons…" id="sidebar-search" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly')">
+  </div>
+
+  <nav>
+    <div class="nav-section">
+      <div class="nav-section-title">Overview</div>
+      <a href="dashboard.html" class="nav-item">
+        <span class="nav-icon">🏠</span> Dashboard
+      </a>
+      <a href="schedule.html" class="nav-item" id="nav-schedule">
+        <span class="nav-icon">📅</span> Schedule
+      </a>
+      <a href="notifications.html" class="nav-item" onclick="openNotifPanel(event)" id="nav-notifications">
+        <span class="nav-icon">🔔</span> Notifications
+        <span class="nav-badge" id="notif-badge" style="display:none">4</span>
+      </a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Learning</div>
+      <a href="my_courses.html" class="nav-item" id="nav-courses">
+        <span class="nav-icon">📚</span> My Courses
+        <span class="nav-badge green">3</span>
+      </a>
+      <a href="assignments.html" class="nav-item" id="nav-assignments">
+        <span class="nav-icon">📝</span> Assignments
+        <span class="nav-badge" id="assign-badge" style="display:none">2</span>
+      </a>
+      <a href="quiz.html" class="nav-item" id="nav-quiz">
+        <span class="nav-icon">🧠</span> Quiz & Tests
+      </a>
+      <a href="leaderboard.html" class="nav-item">
+        <span class="nav-icon">🏆</span> Leaderboard
+      </a>
+      <a href="certifications.html" class="nav-item">
+        <span class="nav-icon">🎓</span> Certifications
+      </a>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-section-title">Account</div>
+      <a href="profile.html" class="nav-item">
+        <span class="nav-icon">👤</span> Profile
+      </a>
+      <a href="settings.html" class="nav-item">
+        <span class="nav-icon">⚙️</span> Settings
+      </a>
+    </div>
+  </nav>
+
+  <div class="sidebar-bottom">
+    <div class="storage-info">
+  <div class="storage-label">☁️ Cloud Storage</div>
+  <div class="storage-bar">
+    <div class="storage-fill" id="storage-fill" style="width:0%"></div>
+  </div>
+  <div class="storage-text" id="storage-text">Loading…</div>
+</div>
+    <a class="nav-item" href="#" id="logout-btn">
+      <span class="nav-icon">🚪</span> Sign Out
+    </a>
+  </div>
+</aside>
+
+<!-- ── Main ────────────────────────────────────────────── -->
+<div class="main-content">
+  <!-- Topbar -->
+  <header class="topbar">
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="topbar-title">
+      <h1>Schedule</h1>
+      <p>Plan your learning sessions and deadlines</p>
+    </div>
+    <div class="topbar-actions">
+      <div class="streak-badge">
+        🔥 <span class="streak-count">0</span> day streak
+      </div>
+      <div style="position:relative">
+        <button class="icon-btn" id="notif-btn" title="Notifications">
+          🔔
+          <span class="dot notif-dot" style="display:none"></span>
+        </button>
+        <!-- Notification Dropdown -->
+        <div class="notif-dropdown" id="notif-dropdown">
+          <div class="notif-header">
+            Notifications
+            <span style="font-size:12px;color:var(--text-muted);font-weight:400;cursor:pointer" onclick="markAllRead()">Mark all read</span>
+          </div>
+          <div class="notif-body">
+            <div class="empty-state" style="padding:20px"><div class="empty-icon">🔔</div><p>Loading…</p></div>
+          </div>
+        </div>
+      </div>
+      <button class="icon-btn" title="Search" onclick="window.location.href='my_courses.html'">🔍</button>
+      <button class="icon-btn" title="Profile" onclick="window.location.href='profile.html'">🌿</button>
+    </div>
+  </header>
+
+  <!-- Page Body -->
+  <div class="page-content">
+    
+<div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+  <button class="btn btn-primary" onclick="openAddEvent()">+ Add Event</button>
+</div>
+
+<div class="schedule-layout">
+  <div class="calendar-panel">
+    <div class="cal-header">
+      <div class="cal-title" id="cal-month-title">June 2026</div>
+      <div class="cal-nav">
+        <button onclick="changeMonth(-1)">‹</button>
+        <button onclick="changeMonth(1)">›</button>
+      </div>
+    </div>
+    <div class="cal-weekdays">
+      <div class="cal-weekday">Sun</div><div class="cal-weekday">Mon</div>
+      <div class="cal-weekday">Tue</div><div class="cal-weekday">Wed</div>
+      <div class="cal-weekday">Thu</div><div class="cal-weekday">Fri</div>
+      <div class="cal-weekday">Sat</div>
+    </div>
+    <div class="cal-days" id="cal-days"></div>
+  </div>
+
+  <div class="events-panel">
+    <div class="events-date-title" id="events-date-title">Today's Events</div>
+    <div id="events-list">
+      <div class="empty-state"><div class="empty-icon">📅</div><p>Select a date to view events</p></div>
+    </div>
+    <button class="btn btn-outline add-event-btn" onclick="openAddEvent()">+ Add Event</button>
+  </div>
+</div>
+
+<!-- Add Event Modal -->
+<div class="modal-overlay" id="add-event-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Add New Event</div>
+      <button class="modal-close" onclick="closeModal('add-event-modal')">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Title</label>
+      <input type="text" class="form-input" id="evt-title" placeholder="Study session, Quiz prep...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Event Type</label>
+      <select class="form-input form-select" id="evt-type">
+        <option value="study">📖 Study</option>
+        <option value="lesson">🎓 Lesson</option>
+        <option value="live_session">🔴 Live Session</option>
+        <option value="quiz">🧠 Quiz</option>
+        <option value="assignment_due">📝 Assignment Due</option>
+      </select>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="form-group">
+        <label class="form-label">Date</label>
+        <input type="date" class="form-input" id="evt-date">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Start Time</label>
+        <input type="time" class="form-input" id="evt-time">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description (optional)</label>
+      <textarea class="form-input" id="evt-desc" rows="2" placeholder="Notes..."></textarea>
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="addEvent()">Add Event</button>
+  </div>
+</div>
+
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toast-container"></div>
+
+<script src="static/js/main.js"></script>
+
+<script>
+let currentDate = new Date();
+let allEvents = {};
+let selectedDate = new Date().toISOString().slice(0,10);
+
+async function loadSchedule() {
+  const data = await api.get(`/api/schedule?month=${currentDate.getMonth()+1}&year=${currentDate.getFullYear()}`);
+  if (!data) return;
+
+  allEvents = {};
+  data.forEach(e => {
+    if (!allEvents[e.event_date]) allEvents[e.event_date] = [];
+    allEvents[e.event_date].push(e);
+  });
+
+  renderCalendar();
+  showDayEvents(selectedDate);
+}
+
+function renderCalendar() {
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('cal-month-title').textContent = `${months[month]} ${year}`;
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const daysInPrev = new Date(year, month, 0).getDate();
+  const today = new Date().toISOString().slice(0,10);
+
+  let html = '';
+  // Prev month overflow
+  for (let i = firstDay - 1; i >= 0; i--) {
+    const d = daysInPrev - i;
+    html += `<div class="cal-day other-month">${d}</div>`;
+  }
+  // Current month
+  for (let d = 1; d <= daysInMonth; d++) {
+    const ds = `${year}-${String(month+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const hasEv = allEvents[ds] && allEvents[ds].length > 0;
+    const isToday = ds === today;
+    const isSelected = ds === selectedDate;
+    html += `<div class="cal-day ${isToday?'today':''} ${isSelected?'selected':''} ${hasEv?'has-events':''}" onclick="selectDate('${ds}')">${d}</div>`;
+  }
+  // Next month overflow
+  const totalCells = firstDay + daysInMonth;
+  const remaining = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+  for (let d = 1; d <= remaining; d++) {
+    html += `<div class="cal-day other-month">${d}</div>`;
+  }
+
+  document.getElementById('cal-days').innerHTML = html;
+}
+
+function selectDate(ds) {
+  selectedDate = ds;
+  renderCalendar();
+  showDayEvents(ds);
+}
+
+function showDayEvents(ds) {
+  const events = allEvents[ds] || [];
+  const d = new Date(ds + 'T00:00:00');
+  const opts = { weekday: 'long', day: 'numeric', month: 'long' };
+  const label = ds === new Date().toISOString().slice(0,10) ? 'Today' : d.toLocaleDateString('en-IN', opts);
+  document.getElementById('events-date-title').textContent = `${label}'s Events`;
+
+  const list = document.getElementById('events-list');
+  if (events.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-icon">✨</div><p>No events. Add one!</p></div>';
+    return;
+  }
+
+  list.innerHTML = events.map(e => `
+    <div class="event-item">
+      <div class="event-dot type-${e.event_type}"></div>
+      <div class="event-time">${e.start_time ? e.start_time.slice(0,5) : ''}</div>
+      <div class="event-details">
+        <div class="event-title">${e.title}</div>
+        <div class="event-course">${e.course_title || e.event_type}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function changeMonth(dir) {
+  currentDate.setMonth(currentDate.getMonth() + dir);
+  loadSchedule();
+}
+
+function openAddEvent() {
+  document.getElementById('evt-date').value = selectedDate || new Date().toISOString().slice(0,10);
+  document.getElementById('add-event-modal').classList.add('open');
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+async function addEvent() {
+  const title = document.getElementById('evt-title').value.trim();
+  const type = document.getElementById('evt-type').value;
+  const date = document.getElementById('evt-date').value;
+  const time = document.getElementById('evt-time').value;
+  const desc = document.getElementById('evt-desc').value;
+
+  if (!title || !date || !time) { toast.show('Missing fields', 'Please fill title, date and time', 'error'); return; }
+
+  const data = await api.post('/api/schedule/add', { title, event_type: type, event_date: date, start_time: time, description: desc });
+  if (data.success) {
+    toast.show('Event added!', `"${title}" scheduled`, 'success');
+    closeModal('add-event-modal');
+    loadSchedule();
+  }
+}
+
+document.addEventListener('DOMContentLoaded', loadSchedule);
+</script>
+
+</body>
+</html>
