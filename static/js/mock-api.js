@@ -354,7 +354,7 @@
       "video_url": "",
       "duration_minutes": 25,
       "xp_reward": 20,
-      "youtube_url": "https://www.youtube.com/live/0bWeeTh0S3E?si=YpchlH8hjYdTrnMF",
+      "youtube_url": "https://www.youtube.com/embed/0bWeeTh0S3E?si=jdNwXcBpywwp5_dI",
       "lesson_order": 1
     },
     {
@@ -390,7 +390,7 @@
       "video_url": "DM4.mp4",
       "duration_minutes": 30,
       "xp_reward": 25,
-      "youtube_url": null,
+      "youtube_url": "https://www.youtube.com/live/cpx2OOouMNk?si=kmVzmWEBSAryOUea",
       "lesson_order": 1
     },
     {
@@ -402,7 +402,7 @@
       "video_url": "",
       "duration_minutes": 35,
       "xp_reward": 25,
-      "youtube_url": null,
+      "youtube_url": "https://www.youtube.com/live/SZzeNLHYV2c?si=t39XBL95_Wi3Ix9t",
       "lesson_order": 2
     },
     {
@@ -414,7 +414,7 @@
       "video_url": "",
       "duration_minutes": 30,
       "xp_reward": 25,
-      "youtube_url": null,
+      "youtube_url": ""
       "lesson_order": 3
     },
     {
