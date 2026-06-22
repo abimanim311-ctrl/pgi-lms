@@ -378,7 +378,7 @@
       "video_url": "",
       "duration_minutes": 35,
       "xp_reward": 25,
-      "youtube_url": null,
+      "youtube_url": "https://www.youtube.com/live/LZedgRMiP2U?si=sq4UYmsc9Jz6uwuU",
       "lesson_order": 3
     },
     {
