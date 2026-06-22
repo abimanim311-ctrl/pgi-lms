@@ -217,23 +217,15 @@ function _renderVideo(l) {
     video.controls       = true;
     video.preload        = 'metadata';
     video.style.cssText  = 'width:100%;height:100%;object-fit:contain;display:block;background:#000;';
-
-    const ext    = fileUrl.split('.').pop().toLowerCase();
-    const mimes  = { mp4:'video/mp4', webm:'video/webm', mov:'video/mp4',
-                     avi:'video/x-msvideo', mkv:'video/x-matroska' };
-    const source = document.createElement('source');
-    source.src   = fileUrl;
-    source.type  = mimes[ext] || 'video/mp4';
-    video.appendChild(source);
+    video.src            = encodeURI(fileUrl);
 
     video.addEventListener('error', () => {
       const code = video.error?.code;
       const msg  = code === 4 ? 'Format not supported — try Chrome/Firefox'
-                 : code === 2 ? 'Network error — check file exists on server'
+                 : code === 2 ? 'Network error — check file exists'
                  : 'Could not load video';
       toast.show('Video error', msg, 'error');
-      ph.style.display = 'flex';
-      video.remove();
+      console.error('Video load error:', msg, video.error);
     });
 
     va.insertBefore(video, ph);
