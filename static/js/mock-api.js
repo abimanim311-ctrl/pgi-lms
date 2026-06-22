@@ -12,7 +12,7 @@
   };
 
   const initialCourses = [
-  {
+    {
       "id": 1,
       "title": "Web Development",
       "description": "Build complete web applications by mastering both frontend interfaces and backend server logic.",
@@ -225,7 +225,7 @@
   ];
 
   const initialLessons = [
-  {
+    {
       "id": 1,
       "course_id": 1,
       "module_number": 1,
@@ -354,7 +354,7 @@
       "video_url": "",
       "duration_minutes": 25,
       "xp_reward": 20,
-      "youtube_url": null,
+      "youtube_url": "https://www.youtube.com/live/0bWeeTh0S3E?si=YpchlH8hjYdTrnMF",
       "lesson_order": 1
     },
     {
@@ -1632,7 +1632,7 @@
   ];
 
   const initialAssignments = [
-  {
+    {
       "id": 1,
       "course_id": 1,
       "title": "REST API Assignment",
@@ -1679,7 +1679,7 @@
   ];
 
   const initialQuizQuestions = [
-  {
+    {
       "id": 1,
       "assignment_id": 2,
       "question": "What does `const` do in JavaScript?",
@@ -1781,7 +1781,7 @@
   ];
 
   const initialAchievements = [
-  {
+    {
       "id": 1,
       "title": "First Login",
       "description": "Welcome to the platform!",
@@ -1973,7 +1973,7 @@
         dark_mode: false,
         is_admin: 0
       };
-      
+
       const adminUser = {
         id: 2,
         username: 'admin',
@@ -1996,7 +1996,7 @@
       };
 
       localStorage.setItem('users', JSON.stringify([demoUser, adminUser]));
-      
+
       // User enrollments (seeded for user 1)
       const userCourses = [
         { id: 1, user_id: 1, course_id: 1, current_module: 2, progress_percent: 40, status: 'active', mode: 'LIVE', enrolled_at: getRelativeDate(-7) },
@@ -2099,19 +2099,19 @@
     const users = JSON.parse(localStorage.getItem('users') || '[]');
     const user = users.find(u => u.id === uid);
     if (!user) return;
-    
+
     const lastLogin = user.last_login;
     const todayStr = new Date().toISOString().slice(0, 10);
-    
+
     if (lastLogin === todayStr) {
       // already updated today
       return;
     }
-    
+
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayStr = yesterday.toISOString().slice(0, 10);
-    
+
     if (lastLogin === yesterdayStr) {
       user.streak_days += 1;
     } else {
@@ -2178,7 +2178,7 @@
       }
 
       // ── AUTH API ──
-      
+
       // 1. LOGIN
       if (url.endsWith('/api/auth/login') && method === 'POST') {
         const users = JSON.parse(localStorage.getItem('users') || '[]');
@@ -2232,7 +2232,7 @@
         users.push(newUser);
         localStorage.setItem('users', JSON.stringify(users));
         localStorage.setItem('sessionUser', newUser.id.toString());
-        
+
         // Add welcome notification
         const notifications = JSON.parse(localStorage.getItem('notifications') || '[]');
         notifications.push({
@@ -2347,12 +2347,12 @@
       }
 
       // ── DASHBOARD API ──
-      
+
       // 11. DASHBOARD OVERVIEW DATA
       if (url.endsWith('/api/dashboard') && method === 'GET') {
         const userCourses = JSON.parse(localStorage.getItem('user_courses') || '[]');
         const activeCourses = userCourses.filter(uc => uc.user_id === currentUser.id && uc.status === 'active');
-        
+
         const courses = JSON.parse(localStorage.getItem('courses') || '[]');
         const activeCourseDetails = activeCourses.map(uc => {
           const matching = courses.find(c => c.id === uc.course_id);
@@ -2434,7 +2434,7 @@
       if (url.endsWith('/api/courses') && method === 'GET') {
         const courses = JSON.parse(localStorage.getItem('courses') || '[]');
         const userCourses = JSON.parse(localStorage.getItem('user_courses') || '[]');
-        
+
         const mapped = courses.map(c => {
           const enrollment = userCourses.find(uc => uc.user_id === currentUser.id && uc.course_id === c.id);
           return {
@@ -2480,7 +2480,7 @@
 
         const lessons = JSON.parse(localStorage.getItem('lessons') || '[]');
         const courseLessons = lessons.filter(l => l.course_id === cid);
-        
+
         const userLessons = JSON.parse(localStorage.getItem('user_lessons') || '[]');
         const lessonsWithCompleted = courseLessons.map(l => {
           const done = userLessons.some(ul => ul.user_id === currentUser.id && ul.lesson_id === l.id);
@@ -2515,7 +2515,7 @@
       if (url.endsWith('/api/courses/enroll') && method === 'POST') {
         const { course_id } = payload;
         const userCourses = JSON.parse(localStorage.getItem('user_courses') || '[]');
-        
+
         if (userCourses.some(uc => uc.user_id === currentUser.id && uc.course_id === course_id)) {
           return mockResponse({ error: 'Already enrolled' }, 400);
         }
@@ -2554,7 +2554,7 @@
       if (url.endsWith('/api/courses/complete-lesson') && method === 'POST') {
         const { lesson_id, module_number, duration } = payload;
         const userLessons = JSON.parse(localStorage.getItem('user_lessons') || '[]');
-        
+
         let alreadyDone = userLessons.some(ul => ul.user_id === currentUser.id && ul.lesson_id === lesson_id);
         if (!alreadyDone) {
           userLessons.push({
@@ -2569,17 +2569,17 @@
         const lessons = JSON.parse(localStorage.getItem('lessons') || '[]');
         const lesson = lessons.find(l => l.id === lesson_id);
         const xpGain = lesson ? lesson.xp_reward : 10;
-        
+
         let pct = 0;
         let certIssued = false;
 
         if (lesson) {
           const cid = lesson.course_id;
-          
+
           // Re-calculate course completion progress percentage
           const courseLessons = lessons.filter(l => l.course_id === cid);
           const completedLessons = courseLessons.filter(l => userLessons.some(ul => ul.user_id === currentUser.id && ul.lesson_id === l.id));
-          
+
           pct = Math.round((completedLessons.length / courseLessons.length) * 100);
 
           const userCourses = JSON.parse(localStorage.getItem('user_courses') || '[]');
@@ -2703,7 +2703,7 @@
       if (url.endsWith('/api/assignments/add') && method === 'POST') {
         const assignments = JSON.parse(localStorage.getItem('assignments') || '[]');
         const { course_id, title, description, due_date, max_score, xp_reward, type } = payload;
-        
+
         const newAssign = {
           id: assignments.length + 1,
           course_id: parseInt(course_id),
@@ -2721,7 +2721,7 @@
         const userCourses = JSON.parse(localStorage.getItem('user_courses') || '[]');
         const userAssignments = JSON.parse(localStorage.getItem('user_assignments') || '[]');
         const enrolledUsers = userCourses.filter(uc => uc.course_id === newAssign.course_id && uc.status === 'active');
-        
+
         enrolledUsers.forEach(uc => {
           userAssignments.push({
             id: userAssignments.length + 1,
@@ -2743,7 +2743,7 @@
         const { assignment_id } = payload;
         const userAssignments = JSON.parse(localStorage.getItem('user_assignments') || '[]');
         const record = userAssignments.find(ua => ua.user_id === currentUser.id && ua.assignment_id === assignment_id);
-        
+
         if (record) {
           record.status = 'submitted';
           record.submitted_at = new Date().toISOString();
@@ -2763,7 +2763,7 @@
 
         const events = JSON.parse(localStorage.getItem('schedule_events') || '[]');
         const courses = JSON.parse(localStorage.getItem('courses') || '[]');
-        
+
         const filtered = events.filter(e => {
           if (e.user_id !== currentUser.id) return false;
           const eDate = new Date(e.event_date);
@@ -2977,9 +2977,9 @@
         const aid = parseInt(getQuizMatch[1]);
         const assignments = JSON.parse(localStorage.getItem('assignments') || '[]');
         const assign = assignments.find(a => a.id === aid);
-        
+
         if (!assign) return mockResponse({ error: 'Quiz assignment not found' }, 404);
-        
+
         const courses = JSON.parse(localStorage.getItem('courses') || '[]');
         const course = courses.find(c => c.id === assign.course_id);
 
@@ -2999,7 +2999,7 @@
       if (url.endsWith('/api/quiz/add-question') && method === 'POST') {
         const quizQuestions = JSON.parse(localStorage.getItem('quiz_questions') || '[]');
         const { assignment_id, question, option_a, option_b, option_c, option_d, correct_option, explanation } = payload;
-        
+
         const newQ = {
           id: quizQuestions.length + 1,
           assignment_id: parseInt(assignment_id),
@@ -3037,7 +3037,7 @@
         // Save status and score in user assignments
         const userAssignments = JSON.parse(localStorage.getItem('user_assignments') || '[]');
         const record = userAssignments.find(ua => ua.user_id === currentUser.id && ua.assignment_id === assignment_id);
-        
+
         if (record) {
           record.status = 'graded';
           record.score = score;
@@ -3166,7 +3166,7 @@
       if (url.endsWith('/api/admin/courses/add') && method === 'POST') {
         const courses = JSON.parse(localStorage.getItem('courses') || '[]');
         const { title, description, instructor, total_modules, total_hours, difficulty, category, xp_reward } = payload;
-        
+
         const newCourse = {
           id: courses.length + 1,
           title: title,
